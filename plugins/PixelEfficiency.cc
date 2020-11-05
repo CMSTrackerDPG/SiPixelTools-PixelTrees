@@ -1140,7 +1140,7 @@ PixelEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	//do the eff VS muon time VS charge
 	if( isTelescopeGood && !isNotInMiddle && testclust.isNonnull()) {
 	  if(type==int(kBPIX)){
-	    if ((*testhit).getType()==TrackingRecHit::valid) ;
+	    if ((*testhit).getType()==TrackingRecHit::valid)
 	      validMuonTimeVSchargeBPix->Fill(time,testclust->charge());
 	    if ((*testhit).getType()==TrackingRecHit::missing)
 	      missingMuonTimeVSchargeBPix->Fill(time,testclust->charge());
