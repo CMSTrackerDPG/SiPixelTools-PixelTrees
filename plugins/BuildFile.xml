@@ -44,6 +44,6 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="roothistmatrix"/>
-<library   name="DPGAnalysisSiPixelToolsPlugin" file="*.cc">
+<library   name="SiPixelToolsPixelTreesPlugin" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
