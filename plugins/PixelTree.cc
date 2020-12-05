@@ -149,7 +149,7 @@ PixelTree::PixelTree(edm::ParameterSet const& iConfig):
   fAccessSimHitInfo(iConfig.getUntrackedParameter<bool>( "accessSimHitInfo", false) ),
   // trackerHitAssociatorConfig_(consumesCollector()),
   trackerHitAssociatorConfig_(iConfig, consumesCollector()),
-  l1GtUtils(iConfig, consumesCollector(), false,*this),
+  l1GtUtils(iConfig, consumesCollector(), false,*this, L1GtUtils::UseEventSetupIn::Event),
   fInit(0)
 {
 
@@ -648,7 +648,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(L1TrigObjectMapToken, hL1GTmap);
 
   //  L1GtUtils l1GtUtils;
-  l1GtUtils.retrieveL1EventSetup(iSetup);
+  l1GtUtils.retrieveL1EventSetup(iSetup, false);
   static int first(1);
   if (first) {
     first = 0; 
