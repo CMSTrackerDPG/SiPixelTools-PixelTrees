@@ -1064,6 +1064,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           if (!tmeasIt->updatedState().isValid()) continue; 
           TrajectoryStateOnSurface tsos = tsoscomb(tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState());
           TransientTrackingRecHit::ConstRecHitPointer hit = tmeasIt->recHit();
+          if(!hit->isValid()) continue;
 
           if (hit->geographicalId().det() != DetId::Tracker) {
             continue; 

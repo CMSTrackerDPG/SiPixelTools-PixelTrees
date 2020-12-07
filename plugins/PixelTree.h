@@ -83,6 +83,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" // Ben
+#include "Geometry/Records/interface/CaloGeometryRecord.h" 
+
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
