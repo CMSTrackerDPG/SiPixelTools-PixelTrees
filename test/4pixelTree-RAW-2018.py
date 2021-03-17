@@ -16,7 +16,7 @@ process.options = cms.untracked.PSet(
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v27', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 
 # -- Conditions
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
