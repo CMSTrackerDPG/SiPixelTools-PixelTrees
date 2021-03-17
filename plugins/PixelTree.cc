@@ -65,8 +65,8 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -149,7 +149,7 @@ PixelTree::PixelTree(edm::ParameterSet const& iConfig):
   fAccessSimHitInfo(iConfig.getUntrackedParameter<bool>( "accessSimHitInfo", false) ),
   // trackerHitAssociatorConfig_(consumesCollector()),
   trackerHitAssociatorConfig_(iConfig, consumesCollector()),
-  l1GtUtils(iConfig, consumesCollector(), false,*this),
+  l1GtUtils(iConfig, consumesCollector(), false,*this, L1GtUtils::UseEventSetupIn::Event),
   fInit(0)
 {
 
@@ -648,7 +648,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(L1TrigObjectMapToken, hL1GTmap);
 
   //  L1GtUtils l1GtUtils;
-  l1GtUtils.retrieveL1EventSetup(iSetup);
+  l1GtUtils.retrieveL1EventSetup(iSetup, false);
   static int first(1);
   if (first) {
     first = 0; 
@@ -1064,6 +1064,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           if (!tmeasIt->updatedState().isValid()) continue; 
           TrajectoryStateOnSurface tsos = tsoscomb(tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState());
           TransientTrackingRecHit::ConstRecHitPointer hit = tmeasIt->recHit();
+          if(!hit->isValid()) continue;
 
           if (hit->geographicalId().det() != DetId::Tracker) {
             continue; 
