@@ -18,14 +18,21 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
 config.General.requestName = 'PixelTree_SingleMuon_2018C_Part1_RAW_v3'
 
+# Automatic splitting: config.Data.splitting = 'Automatic'
+# The 'maxJobRuntimeMin' parameter is not compatible with the 'Automatic' splitting mode (default).
+# In case of Automatic splitting, the Data.unitsPerJob parameter must be in the [180, 2700] minutes range.
+# When Data.splitting = 'Automatic', Data.unitsPerJob represents the jobs target runtime in minutes,
+# and its minimum allowed value is 180 (i.e. 3 hours).
+
 config.section_('JobType')
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '4pixelTree-RAW-2018.py'
 config.JobType.outputFiles = ['PixelTree.root']
 config.JobType.disableAutomaticOutputCollection = True
-config.JobType.maxJobRuntimeMin = 3000
+#config.JobType.maxJobRuntimeMin = 3000
 config.JobType.maxMemoryMB = 4000
+
 
 # Run2 2018C: Run 319337 to 320191
 # Diff. in run num: 320191 - 319337 = 854
@@ -41,7 +48,8 @@ config.Data.runRange = '319337-319436' # 2018C Part1
 config.Data.outLFNDirBase = '/store/user/caleb/PixelTrees'
 #config.Data.splitting = 'FileBased'
 config.Data.splitting = 'Automatic'
-config.Data.unitsPerJob = 1
+#config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = 300
 config.Data.publication = True
 config.Data.ignoreLocality = True
 
