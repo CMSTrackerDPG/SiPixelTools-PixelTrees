@@ -36,8 +36,8 @@ config.Data.unitsPerJob = 1
 config.Data.publication = True
 config.Data.ignoreLocality = True
 
-# Sites: T3_US_Kansas, T2_US_Nebraska, T3_US_FNALLPC
+# Sites: T2_US_Nebraska, T3_US_FNALLPC
 config.section_('Site')
 config.Site.storageSite = 'T3_US_FNALLPC' # make sure you have write access here
-config.Site.whitelist = ['T2_DE_DESY','T2_FR_IPHC','T2_CH_CERN','T2_IT_Bari','T1_IT_*','T2_US_*']
+config.Site.whitelist = ['T2_DE_DESY','T2_FR_IPHC','T2_CH_CERN','T2_IT_Bari','T1_IT_*','T2_US_*','T3_US_*']
 
