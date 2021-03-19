@@ -59,6 +59,5 @@ config.Data.ignoreLocality = True
 # T3_US_FNALLPC is up to speed, but you have to have a cmslpc account to run jobs there
 config.section_('Site')
 config.Site.storageSite = 'T2_US_Nebraska' # make sure you have write access here
-config.Site.whitelist = ['T1_IT_*','T1_US_*','T2_DE_DESY','T2_FR_IPHC','T2_CH_CERN','T2_IT_Bari','T2_US_*','T3_US_FNALLPC']
-config.Site.ignoreGlobalBlacklist = False
+config.Site.whitelist = ['T1_IT_*','T1_US_*','T2_DE_DESY','T2_FR_IPHC','T2_CH_CERN','T2_IT_Bari','T2_US_*']
 
