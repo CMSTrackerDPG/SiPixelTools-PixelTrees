@@ -22,7 +22,7 @@ config = Configuration()
 config.section_('General')
 config.General.transferOutputs = True
 config.General.transferLogs = True
-config.General.requestName = 'PixelTree_SingleMuon_2018C_Part1_RAW_v1'
+config.General.requestName = 'PixelTree_SingleMuon_2018C_RAW_Run319337_v1'
 
 config.section_('JobType')
 config.JobType.allowUndistributedCMSSW = True
@@ -33,16 +33,13 @@ config.JobType.disableAutomaticOutputCollection = True
 config.JobType.maxJobRuntimeMin = 3000
 config.JobType.maxMemoryMB = 4000
 
+# /SingleMuon/Run2018C-v1/RAW: Run 319337 to 320191
+# Diff. in run num: 320191 - 319337 = 854
+
 config.section_('Data')
 config.Data.inputDataset = '/SingleMuon/Run2018C-v1/RAW'
-
-# Run2 2018C: Run 319337 to 320191
-# Diff. in run num: 320191 - 319337 = 854
-# Split into groups with range of 100 runs each
-# Part1: Run 319337 to 319436
-
 #config.Data.runRange = 'XXX-YYY' # only process runs XXX to YYY inclusive
-config.Data.runRange = '319337-319436' # 2018C Part1
+config.Data.runRange = '319337'
 
 # Note: slash required after <CERN-username> if <output-directory> is not provided
 #config.Data.outLFNDirBase = '/store/user/<CERN-username>/<output-directory>'
