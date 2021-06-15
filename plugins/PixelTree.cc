@@ -814,7 +814,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int nrpcb[5] = {0,0,0,0,0};
     int nrpcf[5] = {0,0,0,0,0};
     int N;  
-    std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+    auto const& gmt_records = gmtrc->getRecords();
     std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
     N=0;
     int NN=0;
@@ -975,10 +975,9 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // ----------------------------------------------------------------------
 
   // -- Pixel cluster
-  const edmNew::DetSetVector<SiPixelCluster> *clustColl = 0;
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
   iEvent.getByToken(SiPixelClusterToken, hClusterColl);
-  clustColl = hClusterColl.product();
+  auto const& clustColl = hClusterColl.product();
 
   // -- Pixel RecHit
   edm::Handle<SiPixelRecHitCollection> hRecHitColl;
@@ -993,8 +992,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (fVerbose > 1) cout << "No Track collection with label " << fTrackCollectionLabel << endl;
   }
   if (hTrackCollection.isValid()) {
-    const std::vector<reco::Track> trackColl = *(hTrackCollection.product());
-    nTk = trackColl.size();
+    nTk = hTrackCollection.product()->size();
     if (fVerbose > 1) cout << "--> Track collection size: " << nTk << endl;
   } else {
     if (fVerbose > 1) cout << "--> No valid track collection" << endl;
@@ -1018,7 +1016,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (fTkN > TRACKMAX - 1) break;
 
         if (fVerbose > 1) cout << "      TracjTrackAssociationCollection iterating" << endl;
-        const edm::Ref<std::vector<Trajectory> > refTraj = it->key;  
+        const edm::Ref<std::vector<Trajectory>> refTraj = it->key;  
         reco::TrackRef trackref = it->val;
 
         // -- Check whether it is a pixel track
@@ -1057,7 +1055,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // ----------------------------------------------------------------------
         // -- Clusters associated with a track
-        std::vector<TrajectoryMeasurement> tmeasColl =refTraj->measurements();
+        auto const& tmeasColl =refTraj->measurements();
         int iCluster(0); 
         for (std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt!=tmeasColl.end(); tmeasIt++){
           
@@ -1254,129 +1252,129 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               int maxPixelCol = (*clust).maxPixelCol();
 
               edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find( DBdetid );
-              edm::DetSet<PixelDigiSimLink> digiLink = (*isearch);
+              if(isearch != pixeldigisimlink->end()){
+                  edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = isearch->data.begin();
+                  // create a vector for the track ids in the digisimlinks
 
-              edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = digiLink.data.begin();
-              // create a vector for the track ids in the digisimlinks
+                  std::vector<int>   simTrackIdV;      
+                  std::vector<float> simTrackFrV;   
 
-              std::vector<int>   simTrackIdV;      
-              std::vector<float> simTrackFrV;   
+                  std::vector<int>   simTrackId2V; 
+                  std::vector<int>   simTrackTypeV;
+                  std::vector<int>   simTrackQV;   
+                  std::vector<float> simTrackPxV;  
+                  std::vector<float> simTrackPyV;  
+                  std::vector<float> simTrackPzV;  
+                  std::vector<float> simTrackEnV;  
 
-              std::vector<int>   simTrackId2V; 
-              std::vector<int>   simTrackTypeV;
-              std::vector<int>   simTrackQV;   
-              std::vector<float> simTrackPxV;  
-              std::vector<float> simTrackPyV;  
-              std::vector<float> simTrackPzV;  
-              std::vector<float> simTrackEnV;  
+                  std::vector<float> simTrackEtaV; 
+                  std::vector<float> simTrackPhiV; 
+                  std::vector<float> simTrackPtV;  
 
-              std::vector<float> simTrackEtaV; 
-              std::vector<float> simTrackPhiV; 
-              std::vector<float> simTrackPtV;  
+                  std::vector<float> simTrackVxV;  
+                  std::vector<float> simTrackVyV;  
+                  std::vector<float> simTrackVzV;  
 
-              std::vector<float> simTrackVxV;  
-              std::vector<float> simTrackVyV;  
-              std::vector<float> simTrackVzV;  
+                  simTrackIdV.clear();
+                  simTrackFrV.clear();  
 
-              simTrackIdV.clear();
-              simTrackFrV.clear();  
+                  simTrackId2V.clear(); 
+                  simTrackTypeV.clear();
+                  simTrackQV.clear();   
+                  simTrackPxV.clear();  
+                  simTrackPyV.clear();  
+                  simTrackPzV.clear();  
+                  simTrackEnV.clear();  
 
-              simTrackId2V.clear(); 
-              simTrackTypeV.clear();
-              simTrackQV.clear();   
-              simTrackPxV.clear();  
-              simTrackPyV.clear();  
-              simTrackPzV.clear();  
-              simTrackEnV.clear();  
+                  simTrackEtaV.clear(); 
+                  simTrackPhiV.clear(); 
+                  simTrackPtV.clear();  
 
-              simTrackEtaV.clear(); 
-              simTrackPhiV.clear(); 
-              simTrackPtV.clear();  
+                  simTrackVxV.clear();  
+                  simTrackVyV.clear();  
+                  simTrackVzV.clear();  
 
-              simTrackVxV.clear();  
-              simTrackVyV.clear();  
-              simTrackVzV.clear();  
+                  for( ; linkiter != isearch->data.end(); linkiter++){ // loop over all digisimlinks
 
-              for( ; linkiter != digiLink.data.end(); linkiter++){ // loop over all digisimlinks
+                    std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
 
-                std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
+                    // is the digisimlink inside the cluster boundaries?
+                    if ( pixel_coord.first  <= maxPixelRow &&
+                      pixel_coord.first  >= minPixelRow &&
+                      pixel_coord.second <= maxPixelCol &&
+                      pixel_coord.second >= minPixelCol ){
 
-                // is the digisimlink inside the cluster boundaries?
-                if ( pixel_coord.first  <= maxPixelRow &&
-                  pixel_coord.first  >= minPixelRow &&
-                  pixel_coord.second <= maxPixelCol &&
-                  pixel_coord.second >= minPixelCol ){
+                      bool inStock(false); // did we see this simTrackId before? - We will check later
+                      
+                      std::vector<int>::const_iterator sTIter = simTrackIdV.begin();
+                      for ( ; sTIter < simTrackIdV.end(); sTIter++) {
+                        if ( (*sTIter) == (int)linkiter->SimTrackId() ){
+                          inStock=true; // now we saw this id before
+                        }
+                      }
 
-                  bool inStock(false); // did we see this simTrackId before? - We will check later
-                  
-                  std::vector<int>::const_iterator sTIter = simTrackIdV.begin();
-                  for ( ; sTIter < simTrackIdV.end(); sTIter++) {
-                    if ( (*sTIter) == (int)linkiter->SimTrackId() ){
-                      inStock=true; // now we saw this id before
-                    }
+                      if ( !inStock ){
+
+                        int simtrkid = linkiter->SimTrackId();                  
+
+                        for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
+
+                          if ( (int)simTrack->trackId() == simtrkid ){
+
+                            simTrackIdV.push_back(   linkiter->SimTrackId()    ); // add the track id to the vector
+                            simTrackFrV.push_back(   linkiter->fraction()      ); 
+                            
+                            simTrackId2V.push_back(  (int)simTrack->trackId()  );
+                            simTrackTypeV.push_back( simTrack->type()          ); 
+                            simTrackQV.push_back(    simTrack->charge()        );
+                            simTrackPxV.push_back(   simTrack->momentum().x()  );
+                            simTrackPyV.push_back(   simTrack->momentum().y()  );
+                            simTrackPzV.push_back(   simTrack->momentum().z()  );
+                            simTrackEnV.push_back(   simTrack->momentum().t()  );
+                            
+                            simTrackEtaV.push_back(  simTrack->momentum().eta()             );
+                            simTrackPhiV.push_back(  simTrack->momentum().phi()             );
+                            simTrackPtV.push_back(   simTrack->momentum().pt()              );
+                            
+                            simTrackVxV.push_back(   simVC[simTrack->vertIndex()].position().x() );
+                            simTrackVyV.push_back(   simVC[simTrack->vertIndex()].position().y() );
+                            simTrackVzV.push_back(   simVC[simTrack->vertIndex()].position().z() );
+                            
+                            break;
+                            
+                          } // if ( (int)simTrack->trackId() == simtrkid )
+                        } // for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++)
+                          // gavril : check this !!!
+                          //if ( !found_sim_trk )
+                          //cout << "Din not find sim tracks with ID = " << simtrkid << "   !!!!!!!!!!!!!!!!!!!!!!!" << endl; 
+                      } // if ( !inStock )
+                    } // if ( pixel_coord.first  <= maxPixelRow && ... )
+                  } // for( ; linkiter != digiLink.data.end(); linkiter++) 
+
+                  fClSimTrN[fClN] = (int)simTrackIdV.size();
+
+                  for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  ){
+                    fClSimTrID[fClN][iSimTrk] = simTrackIdV[iSimTrk]; 
+                    fClSimTrFr[fClN][iSimTrk] = simTrackFrV[iSimTrk];
+
+                    fClSimTrID2[fClN][iSimTrk]       = simTrackId2V[iSimTrk];
+                    fClSimTrType[fClN][iSimTrk]      = simTrackTypeV[iSimTrk];
+                    fClSimTrQ[fClN][iSimTrk]         = simTrackQV[iSimTrk];
+                    fClSimTrPx[fClN][iSimTrk]        = simTrackPxV[iSimTrk];
+                    fClSimTrPy[fClN][iSimTrk]        = simTrackPyV[iSimTrk];
+                    fClSimTrPz[fClN][iSimTrk]        = simTrackPzV[iSimTrk];
+                    fClSimTrEn[fClN][iSimTrk]        = simTrackEnV[iSimTrk];
+
+                    fClSimTrEta[fClN][iSimTrk]       = simTrackEtaV[iSimTrk];
+                    fClSimTrPhi[fClN][iSimTrk]       = simTrackPhiV[iSimTrk];
+                    fClSimTrPt[fClN][iSimTrk]        = simTrackPtV[iSimTrk];
+
+                    fClSimTrVx[fClN][iSimTrk]   = simTrackVxV[iSimTrk];
+                    fClSimTrVy[fClN][iSimTrk]   = simTrackVyV[iSimTrk];
+                    fClSimTrVz[fClN][iSimTrk]   = simTrackVzV[iSimTrk];
                   }
-
-                  if ( !inStock ){
-
-                    int simtrkid = linkiter->SimTrackId();                  
-
-                    for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-
-                      if ( (int)simTrack->trackId() == simtrkid ){
-
-                        simTrackIdV.push_back(   linkiter->SimTrackId()    ); // add the track id to the vector
-                        simTrackFrV.push_back(   linkiter->fraction()      ); 
-                        
-                        simTrackId2V.push_back(  (int)simTrack->trackId()  );
-                        simTrackTypeV.push_back( simTrack->type()          ); 
-                        simTrackQV.push_back(    simTrack->charge()        );
-                        simTrackPxV.push_back(   simTrack->momentum().x()  );
-                        simTrackPyV.push_back(   simTrack->momentum().y()  );
-                        simTrackPzV.push_back(   simTrack->momentum().z()  );
-                        simTrackEnV.push_back(   simTrack->momentum().t()  );
-                        
-                        simTrackEtaV.push_back(  simTrack->momentum().eta()             );
-                        simTrackPhiV.push_back(  simTrack->momentum().phi()             );
-                        simTrackPtV.push_back(   simTrack->momentum().pt()              );
-                        
-                        simTrackVxV.push_back(   simVC[simTrack->vertIndex()].position().x() );
-                        simTrackVyV.push_back(   simVC[simTrack->vertIndex()].position().y() );
-                        simTrackVzV.push_back(   simVC[simTrack->vertIndex()].position().z() );
-                        
-                        break;
-                        
-                      } // if ( (int)simTrack->trackId() == simtrkid )
-                    } // for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++)
-                      // gavril : check this !!!
-                      //if ( !found_sim_trk )
-                      //cout << "Din not find sim tracks with ID = " << simtrkid << "   !!!!!!!!!!!!!!!!!!!!!!!" << endl; 
-                  } // if ( !inStock )
-                } // if ( pixel_coord.first  <= maxPixelRow && ... )
-              } // for( ; linkiter != digiLink.data.end(); linkiter++) 
-
-              fClSimTrN[fClN] = (int)simTrackIdV.size();
-
-              for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  ){
-                fClSimTrID[fClN][iSimTrk] = simTrackIdV[iSimTrk]; 
-                fClSimTrFr[fClN][iSimTrk] = simTrackFrV[iSimTrk];
-
-                fClSimTrID2[fClN][iSimTrk]       = simTrackId2V[iSimTrk];
-                fClSimTrType[fClN][iSimTrk]      = simTrackTypeV[iSimTrk];
-                fClSimTrQ[fClN][iSimTrk]         = simTrackQV[iSimTrk];
-                fClSimTrPx[fClN][iSimTrk]        = simTrackPxV[iSimTrk];
-                fClSimTrPy[fClN][iSimTrk]        = simTrackPyV[iSimTrk];
-                fClSimTrPz[fClN][iSimTrk]        = simTrackPzV[iSimTrk];
-                fClSimTrEn[fClN][iSimTrk]        = simTrackEnV[iSimTrk];
-
-                fClSimTrEta[fClN][iSimTrk]       = simTrackEtaV[iSimTrk];
-                fClSimTrPhi[fClN][iSimTrk]       = simTrackPhiV[iSimTrk];
-                fClSimTrPt[fClN][iSimTrk]        = simTrackPtV[iSimTrk];
-
-                fClSimTrVx[fClN][iSimTrk]   = simTrackVxV[iSimTrk];
-                fClSimTrVy[fClN][iSimTrk]   = simTrackVyV[iSimTrk];
-                fClSimTrVz[fClN][iSimTrk]   = simTrackVzV[iSimTrk];
-              }
-            } //  if ( fAccessSimHitInfo )
+                } //  if ( fAccessSimHitInfo )
+              } // if found simlink
 
             // gavril : end : access sim tracks associated with current cluster
 
@@ -1767,132 +1765,135 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 int maxPixelCol = (*di).maxPixelCol();
 
                 int DBdetid = iRh->geographicalId().rawId();
-                edm::DetSetVector<PixelDigiSimLink>::const_iterator ipdgl = pixeldigisimlink->find( DBdetid );
-                edm::DetSet<PixelDigiSimLink> digiLink = (*ipdgl);
 
-                edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = digiLink.data.begin();
-                
-                //create a vector for the track ids in the digisimlinks
-                std::vector<int> simTrackIdV;    
-                std::vector<float> simTrackFrV;
+                edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find( DBdetid );
+                if(isearch != pixeldigisimlink->end()){
 
-                std::vector<int>   simTrackId2V; 
-                std::vector<int>   simTrackTypeV;
-                std::vector<int>   simTrackQV;   
-                std::vector<float> simTrackPxV;  
-                std::vector<float> simTrackPyV;  
-                std::vector<float> simTrackPzV;  
-                std::vector<float> simTrackEnV;  
+                    edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = isearch->data.begin();
+                    // create a vector for the track ids in the digisimlinks
+                    
+                    //create a vector for the track ids in the digisimlinks
+                    std::vector<int> simTrackIdV;    
+                    std::vector<float> simTrackFrV;
 
-                std::vector<float> simTrackEtaV; 
-                std::vector<float> simTrackPhiV; 
-                std::vector<float> simTrackPtV;  
+                    std::vector<int>   simTrackId2V; 
+                    std::vector<int>   simTrackTypeV;
+                    std::vector<int>   simTrackQV;   
+                    std::vector<float> simTrackPxV;  
+                    std::vector<float> simTrackPyV;  
+                    std::vector<float> simTrackPzV;  
+                    std::vector<float> simTrackEnV;  
 
-                std::vector<float> simTrackVxV;  
-                std::vector<float> simTrackVyV;  
-                std::vector<float> simTrackVzV;  
+                    std::vector<float> simTrackEtaV; 
+                    std::vector<float> simTrackPhiV; 
+                    std::vector<float> simTrackPtV;  
 
-                simTrackIdV.clear();    
-                simTrackFrV.clear();
+                    std::vector<float> simTrackVxV;  
+                    std::vector<float> simTrackVyV;  
+                    std::vector<float> simTrackVzV;  
 
-                simTrackId2V.clear(); 
-                simTrackTypeV.clear();
-                simTrackQV.clear();   
-                simTrackPxV.clear();  
-                simTrackPyV.clear();  
-                simTrackPzV.clear();  
-                simTrackEnV.clear();  
+                    simTrackIdV.clear();    
+                    simTrackFrV.clear();
 
-                simTrackEtaV.clear(); 
-                simTrackPhiV.clear(); 
-                simTrackPtV.clear();  
+                    simTrackId2V.clear(); 
+                    simTrackTypeV.clear();
+                    simTrackQV.clear();   
+                    simTrackPxV.clear();  
+                    simTrackPyV.clear();  
+                    simTrackPzV.clear();  
+                    simTrackEnV.clear();  
 
-                simTrackVxV.clear();  
-                simTrackVyV.clear();  
-                simTrackVzV.clear();
+                    simTrackEtaV.clear(); 
+                    simTrackPhiV.clear(); 
+                    simTrackPtV.clear();  
 
-                // loop over all digisimlinks
-                for( ; linkiter != digiLink.data.end(); linkiter++) {
+                    simTrackVxV.clear();  
+                    simTrackVyV.clear();  
+                    simTrackVzV.clear();
 
-                  std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
+                    // loop over all digisimlinks
+                    for( ; linkiter != isearch->data.end(); linkiter++) {
 
-                  // is the digisimlink inside the cluster boundaries?
-                  if ( pixel_coord.first  <= maxPixelRow &&
-                    pixel_coord.first  >= minPixelRow &&
-                    pixel_coord.second <= maxPixelCol &&
-                    pixel_coord.second >= minPixelCol ){
+                      std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
 
-                    bool inStock(false); // did we see this simTrackId before? - We will check later
-                      
-                    std::vector<int>::const_iterator sTIter =  simTrackIdV.begin();
-                    for ( ; sTIter < simTrackIdV.end(); sTIter++) {
-                      if ( (*sTIter) == (int)linkiter->SimTrackId() ){
-                        inStock=true; // now we saw this id before
-                      }
-                    }
+                      // is the digisimlink inside the cluster boundaries?
+                      if ( pixel_coord.first  <= maxPixelRow &&
+                        pixel_coord.first  >= minPixelRow &&
+                        pixel_coord.second <= maxPixelCol &&
+                        pixel_coord.second >= minPixelCol ){
 
-                    if ( !inStock ){
-
-                      int simtrkid = linkiter->SimTrackId();
-
-                      for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-
-                        if ( (int)simTrack->trackId() == simtrkid ){
-
-                          simTrackIdV.push_back(   linkiter->SimTrackId()    ); // add the track id to the vector
-                          simTrackFrV.push_back(   linkiter->fraction()      ); 
+                        bool inStock(false); // did we see this simTrackId before? - We will check later
                           
-                          simTrackId2V.push_back(  (int)simTrack->trackId()  );
-                          simTrackTypeV.push_back( simTrack->type()          ); 
-                          simTrackQV.push_back(    simTrack->charge()        );
-                          simTrackPxV.push_back(   simTrack->momentum().x()  );
-                          simTrackPyV.push_back(   simTrack->momentum().y()  );
-                          simTrackPzV.push_back(   simTrack->momentum().z()  );
-                          simTrackEnV.push_back(   simTrack->momentum().t()  );
+                        std::vector<int>::const_iterator sTIter =  simTrackIdV.begin();
+                        for ( ; sTIter < simTrackIdV.end(); sTIter++) {
+                          if ( (*sTIter) == (int)linkiter->SimTrackId() ){
+                            inStock=true; // now we saw this id before
+                          }
+                        }
+
+                        if ( !inStock ){
+
+                          int simtrkid = linkiter->SimTrackId();
+
+                          for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
+
+                            if ( (int)simTrack->trackId() == simtrkid ){
+
+                              simTrackIdV.push_back(   linkiter->SimTrackId()    ); // add the track id to the vector
+                              simTrackFrV.push_back(   linkiter->fraction()      ); 
+                              
+                              simTrackId2V.push_back(  (int)simTrack->trackId()  );
+                              simTrackTypeV.push_back( simTrack->type()          ); 
+                              simTrackQV.push_back(    simTrack->charge()        );
+                              simTrackPxV.push_back(   simTrack->momentum().x()  );
+                              simTrackPyV.push_back(   simTrack->momentum().y()  );
+                              simTrackPzV.push_back(   simTrack->momentum().z()  );
+                              simTrackEnV.push_back(   simTrack->momentum().t()  );
+                              
+                              simTrackEtaV.push_back(  simTrack->momentum().eta()             );
+                              simTrackPhiV.push_back(  simTrack->momentum().phi()             );
+                              simTrackPtV.push_back(   simTrack->momentum().pt()              );
+                              
+                              simTrackVxV.push_back(   simVC[simTrack->vertIndex()].position().x() );
+                              simTrackVyV.push_back(   simVC[simTrack->vertIndex()].position().y() );
+                              simTrackVzV.push_back(   simVC[simTrack->vertIndex()].position().z() );
                           
-                          simTrackEtaV.push_back(  simTrack->momentum().eta()             );
-                          simTrackPhiV.push_back(  simTrack->momentum().phi()             );
-                          simTrackPtV.push_back(   simTrack->momentum().pt()              );
+                              break;
                           
-                          simTrackVxV.push_back(   simVC[simTrack->vertIndex()].position().x() );
-                          simTrackVyV.push_back(   simVC[simTrack->vertIndex()].position().y() );
-                          simTrackVzV.push_back(   simVC[simTrack->vertIndex()].position().z() );
-                      
-                          break;
-                      
-                        } // if ( (int)simTrack->trackId() == simtrkid )
-                      } // for (SimTrackContainer::const_iterator simTrack=simTC.begin(); ...)
+                            } // if ( (int)simTrack->trackId() == simtrkid )
+                          } // for (SimTrackContainer::const_iterator simTrack=simTC.begin(); ...)
 
-                      // gavril : check this 
-                      //  if ( !found_sim_trk )
-                      //cout << "2 Din not find sim tracks with ID = " << simtrkid << "   !!!!!!!!!!!!!!!!!!!" << endl;
-                    } // if ( !inStock )
-                  } // if ( pixel_coord.first  <= maxPixelRow && ... )
-                } // for( ; linkiter != digiLink.data.end(); linkiter++) 
+                          // gavril : check this 
+                          //  if ( !found_sim_trk )
+                          //cout << "2 Din not find sim tracks with ID = " << simtrkid << "   !!!!!!!!!!!!!!!!!!!" << endl;
+                        } // if ( !inStock )
+                      } // if ( pixel_coord.first  <= maxPixelRow && ... )
+                    } // for( ; linkiter != digiLink.data.end(); linkiter++) 
 
-                fClSimTrN[fClN] = (int)simTrackIdV.size();
+                    fClSimTrN[fClN] = (int)simTrackIdV.size();
 
-                for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  ){
-                  fClSimTrID[fClN][iSimTrk] = simTrackIdV[iSimTrk]; 
-                  fClSimTrFr[fClN][iSimTrk] = simTrackFrV[iSimTrk];
+                    for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  ){
+                      fClSimTrID[fClN][iSimTrk] = simTrackIdV[iSimTrk]; 
+                      fClSimTrFr[fClN][iSimTrk] = simTrackFrV[iSimTrk];
 
-                  fClSimTrID2[fClN][iSimTrk]       = simTrackId2V[iSimTrk];
-                  fClSimTrType[fClN][iSimTrk]      = simTrackTypeV[iSimTrk];
-                  fClSimTrQ[fClN][iSimTrk]         = simTrackQV[iSimTrk];
-                  fClSimTrPx[fClN][iSimTrk]        = simTrackPxV[iSimTrk];
-                  fClSimTrPy[fClN][iSimTrk]        = simTrackPyV[iSimTrk];
-                  fClSimTrPz[fClN][iSimTrk]        = simTrackPzV[iSimTrk];
-                  fClSimTrEn[fClN][iSimTrk]        = simTrackEnV[iSimTrk];
+                      fClSimTrID2[fClN][iSimTrk]       = simTrackId2V[iSimTrk];
+                      fClSimTrType[fClN][iSimTrk]      = simTrackTypeV[iSimTrk];
+                      fClSimTrQ[fClN][iSimTrk]         = simTrackQV[iSimTrk];
+                      fClSimTrPx[fClN][iSimTrk]        = simTrackPxV[iSimTrk];
+                      fClSimTrPy[fClN][iSimTrk]        = simTrackPyV[iSimTrk];
+                      fClSimTrPz[fClN][iSimTrk]        = simTrackPzV[iSimTrk];
+                      fClSimTrEn[fClN][iSimTrk]        = simTrackEnV[iSimTrk];
 
-                  fClSimTrEta[fClN][iSimTrk]       = simTrackEtaV[iSimTrk];
-                  fClSimTrPhi[fClN][iSimTrk]       = simTrackPhiV[iSimTrk];
-                  fClSimTrPt[fClN][iSimTrk]        = simTrackPtV[iSimTrk];
+                      fClSimTrEta[fClN][iSimTrk]       = simTrackEtaV[iSimTrk];
+                      fClSimTrPhi[fClN][iSimTrk]       = simTrackPhiV[iSimTrk];
+                      fClSimTrPt[fClN][iSimTrk]        = simTrackPtV[iSimTrk];
 
-                  fClSimTrVx[fClN][iSimTrk]   = simTrackVxV[iSimTrk];
-                  fClSimTrVy[fClN][iSimTrk]   = simTrackVyV[iSimTrk];
-                  fClSimTrVz[fClN][iSimTrk]   = simTrackVzV[iSimTrk];
-                } // for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  )
-              } //  if ( fAccessSimHitInfo ) 
+                      fClSimTrVx[fClN][iSimTrk]   = simTrackVxV[iSimTrk];
+                      fClSimTrVy[fClN][iSimTrk]   = simTrackVyV[iSimTrk];
+                      fClSimTrVz[fClN][iSimTrk]   = simTrackVzV[iSimTrk];
+                    } // for ( int iSimTrk = 0; iSimTrk < fClSimTrN[fClN]; iSimTrk++  )
+                  } //  if ( fAccessSimHitInfo ) 
+                }
 
               // gavril : end : associate and store simhit info
 
@@ -2013,7 +2014,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void PixelTree::isPixelTrack(const edm::Ref<std::vector<Trajectory> > &refTraj, bool &isBpixtrack, bool &isFpixtrack) {
   // Used in PixelTree::analyze() to see if it is pixel track
 
-  std::vector<TrajectoryMeasurement> tmeasColl = refTraj->measurements();
+  auto const& tmeasColl = refTraj->measurements();
   std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
   for (tmeasIt = tmeasColl.begin(); tmeasIt != tmeasColl.end(); tmeasIt++) {
     if (!tmeasIt->updatedState().isValid()) continue; 
