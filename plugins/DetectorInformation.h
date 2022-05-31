@@ -21,27 +21,37 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
 class TFile;
 class DetId; 
 
-class DetectorInformation : public edm::EDAnalyzer {
+class DetectorInformation : public edm::one::EDAnalyzer<> {
 
  public:
   
@@ -70,6 +80,9 @@ class DetectorInformation : public edm::EDAnalyzer {
   int             fVerbose; 
   std::string     fRootFileName; 
   edm::ESHandle<SiPixelFedCablingMap> fCablingMap;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
   TFile *fFile; 
 

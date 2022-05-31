@@ -15,36 +15,63 @@
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+
 
 #include <boost/range/irange.hpp>
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+
 // _________________________________________________________
 //                 Constructors, destructor
-SiPixelCoordinates::SiPixelCoordinates() { phase_=-1; }
+SiPixelCoordinates::SiPixelCoordinates() { phase_=-1; 
 
-SiPixelCoordinates::SiPixelCoordinates(int phase) : phase_(phase) {}
+}
+
+SiPixelCoordinates::SiPixelCoordinates(int phase) : phase_(phase) 
+
+
+{
+
+
+}
 
 SiPixelCoordinates::~SiPixelCoordinates() {}
 
 
 // _________________________________________________________
 //       init, called in the beginning of each event
-void SiPixelCoordinates::init(edm::EventSetup const& iSetup) {
-  // Get CablingMap (used for ROC number)
-  edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapHandle);
-  cablingMap_ = cablingMapHandle.product();
+//
+//
+  const TrackerTopology*      tTopo_;
+  const TrackerGeometry*      tGeom_;
+  const SiPixelFedCablingMap* cablingMap_;
+void SiPixelCoordinates::init(edm::EventSetup const& iSetup, const SiPixelFedCablingMap* cMap,  const TrackerGeometry * geom,   const TrackerTopology* topo  ) {
+  cablingMap_ = cMap;
+  tTopo_ = topo;
+  tGeom_ = geom;
 
-  // Get TrackerTopology
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  tTopo_ = trackerTopologyHandle.product();
 
-  // Get TrackerGeometry
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  tGeom_ = trackerGeometryHandle.product();
+  //cablingMap_ = iSetup.getHandle(cablingMapToken_).product();
+
+  //// Get TrackerTopology
+  //tTopo_ = iSetup.getHandle(trackerTopoToken_).product();
+
+  //// Get TrackerGeometry
+  //tGeom_ = iSetup.getHandle(trackerGeomToken_).product();
 
   // If not specified, determine from the geometry
   if (phase_==-1) {
