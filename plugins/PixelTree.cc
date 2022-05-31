@@ -183,6 +183,7 @@ PixelTree::PixelTree(edm::ParameterSet const& iConfig):
   LumiToken                   = consumes <LumiSummary>(edm::InputTag("lumiProducer"));
   ConditionsInLumiBlockToken  = consumes <edm::ConditionsInLumiBlock> (edm::InputTag("conditionsInEdm"));
 
+
   PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
   SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
   SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
@@ -197,6 +198,15 @@ PixelTree::PixelTree(edm::ParameterSet const& iConfig):
   PixelRecHitToken        = consumes <SiPixelRecHitCollection>(fPixelRecHitLabel);
   TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
   TTAToken                = consumes <TrajTrackAssociationCollection> (fTrajectoryInputLabel);
+
+  L1GtTriggerMenuToken_ = esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>();
+
+  caloGeomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
+  magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  runInfoToken_ = esConsumes<RunInfo, RunInfoRcd>();
 
   init();
 }
@@ -461,8 +471,6 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // cout << "Called PixelTree::analyze()" << endl;
 
-  // Explain this
-  coord_.init(iSetup);
 
   std::vector<PSimHit> vec_simhits_assoc;
   TrackerHitAssociator *associate(0);
@@ -507,14 +515,15 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (0 == fInit) {
     fInit = 1; 
     // -- Setup cabling map and its map to detIDs
-    iSetup.get<SiPixelFedCablingMapRcd>().get(fCablingMap);
+
+    fCablingMap = iSetup.getHandle(cablingMapToken_);
     for (int i = 0; i < 40; ++i) {
       fPFC[i] = new SiPixelFrameConverter(fCablingMap.product(), i);
     }
     
     
     edm::ESHandle<TrackerGeometry> pDD;
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    pDD = iSetup.getHandle(trackerGeomToken_);
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
       if(dynamic_cast<const PixelGeomDetUnit*>((*it))!=0){
@@ -535,7 +544,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   init();
 
   ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  TG = iSetup.getHandle(trackerGeomToken_);
   const TrackerGeometry* theTrackerGeometry = TG.product();
   const TrackerGeometry& theTracker(*theTrackerGeometry);
 
@@ -560,6 +569,11 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   fTimeLo = low;
   fTimeHi = high;
+
+
+  //setup SiPixelCoordinates
+  const auto tTopo = iSetup.getHandle(trackerTopoToken_).product();
+  coord_.init(iSetup, fCablingMap.product(), theTrackerGeometry, tTopo);
 
   // Get the luminosity information 
   //  edm::LuminosityBlock const& iLumi = iEvent.getLuminosityBlock();
@@ -592,7 +606,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // -- Magnetic field
   ESHandle<MagneticField> MF;
-  iSetup.get<IdealMagneticFieldRecord>().get(MF);
+  MF = iSetup.getHandle(magFieldToken_);
   const MagneticField* theMagneticField = MF.product();
   fBz    = fabs(theMagneticField->inTesla(GlobalPoint(0,0,0)).z());
 
@@ -608,7 +622,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   else{
     edm::ESHandle<RunInfo> runInfoHandle;
-    iSetup.get<RunInfoRcd>().get(runInfoHandle);
+    runInfoHandle = iSetup.getHandle(runInfoToken_);
     const RunInfo *runInfo = runInfoHandle.product();
     unsigned int totbpixfeds(32), totfpixfeds(8); 
     
@@ -657,7 +671,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+  menuRcd = iSetup.getHandle(L1GtTriggerMenuToken_);
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   string algoname; 
@@ -922,8 +936,7 @@ void PixelTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     ESHandle<CaloGeometry> caloGeometry ;
-    iSetup.get<CaloGeometryRecord>().get(caloGeometry);
-
+    caloGeometry = iSetup.getHandle(caloGeomToken_); 
     int nHits = 0;
     double eSum = 0.;
     double ePlus = 0;

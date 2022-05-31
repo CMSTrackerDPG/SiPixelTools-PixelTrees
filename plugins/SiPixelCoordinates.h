@@ -20,16 +20,35 @@
 // Original Author: Janos Karancsi
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+
+
+
+
 
 
 class SiPixelCoordinates {
@@ -38,9 +57,12 @@ class SiPixelCoordinates {
 
   SiPixelCoordinates();
   SiPixelCoordinates(int);
+  explicit SiPixelCoordinates(const edm::ParameterSet& ps);
   virtual ~SiPixelCoordinates();
 
-  void init(edm::EventSetup const&);
+
+  void init(edm::EventSetup const& iSetup, const SiPixelFedCablingMap* cMap,  const TrackerGeometry * geom,   const TrackerTopology* topo  );
+
 
   // Integers
   int quadrant(const DetId&);
@@ -168,6 +190,7 @@ class SiPixelCoordinates {
   const TrackerTopology*      tTopo_;
   const TrackerGeometry*      tGeom_;
   const SiPixelFedCablingMap* cablingMap_;
+
 
   // Internal containers for optimal speed
   // - only calculate things once per DetId

@@ -117,6 +117,9 @@ DetectorInformation::DetectorInformation(edm::ParameterSet const& iConfig):
   cout << "---  rootFileName:                    " << fRootFileName << endl;
   cout << "----------------------------------------------------------------------" << endl;
 
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
+
   init();
 
 }
@@ -162,14 +165,15 @@ void DetectorInformation::analyze(const edm::Event& iEvent,
   if (0 == fInit) {
     fInit = 1; 
     // -- Setup cabling map and its map to detIDs
-    iSetup.get<SiPixelFedCablingMapRcd>().get(fCablingMap);
+
+    fCablingMap = iSetup.getHandle(cablingMapToken_);
     for (int i = 0; i < 40; ++i) {
       fPFC[i] = new SiPixelFrameConverter(fCablingMap.product(), i);
     }
     
     
     edm::ESHandle<TrackerGeometry> pDD;
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    pDD = iSetup.getHandle(trackerGeomToken_);
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
       if(dynamic_cast<const PixelGeomDetUnit*>((*it))!=0){
@@ -247,7 +251,7 @@ void DetectorInformation::ROClist(const DetId &pID) {
 void DetectorInformation::dumpDetIds(const edm::EventSetup& iSetup) {
 
   edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+  pDD = iSetup.getHandle(trackerGeomToken_);
 
   cout << "**********************************************************************" << endl;
   cout << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;

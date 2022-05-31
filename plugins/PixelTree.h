@@ -120,7 +120,12 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
@@ -153,7 +158,7 @@ class TFile;
 class RectangularPixelTopology;
 class DetId; 
 
-class PixelTree : public edm::EDAnalyzer {
+class PixelTree : public edm::one::EDAnalyzer<> {
  public:
   
   explicit PixelTree(const edm::ParameterSet& ps);
@@ -185,6 +190,16 @@ class PixelTree : public edm::EDAnalyzer {
   std::string     fHLTProcessName; 
   edm::InputTag   fL1GTReadoutRecordLabel, fL1GTmapLabel, fHLTResultsLabel, fL1MuGMTLabel; 
   edm::ESHandle<SiPixelFedCablingMap> fCablingMap;
+
+
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> L1GtTriggerMenuToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 
   edm::EDGetTokenT<LumiSummary> LumiToken;
   edm::EDGetTokenT<edm::ConditionsInLumiBlock> ConditionsInLumiBlockToken;
