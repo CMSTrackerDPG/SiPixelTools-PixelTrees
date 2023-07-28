@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@
 // class declaration
 //
 
-class FEDInRunFilter : public edm::EDFilter {
+class FEDInRunFilter : public edm::stream::EDFilter<> {
 
 public:
   explicit FEDInRunFilter(const edm::ParameterSet&);
@@ -63,6 +63,7 @@ private:
   uint64_t bookkeeping_[40];
   uint64_t totevents_;
   uint64_t goodevents_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   // ----------member data ---------------------------
 };
 
@@ -91,6 +92,8 @@ FEDInRunFilter::FEDInRunFilter(const edm::ParameterSet& iConfig)
   
   for(unsigned int ifed=0; ifed<totbpixfeds_+totfpixfeds_;++ifed)
     bookkeeping_[ifed]=0;
+  
+  runInfoToken_ = esConsumes<RunInfo, RunInfoRcd, edm::Transition::EndLuminosityBlock>();
 }
 
 
@@ -132,16 +135,13 @@ FEDInRunFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
 
-  edm::ESHandle<RunInfo> runInfoHandle;
-  //  std::cout<<"got eshandle"<<std::endl;
-  iSetup.get<RunInfoRcd>().get(runInfoHandle);
-  const RunInfo *runInfo = runInfoHandle.product();
+  const RunInfo runInfo = iSetup.get<RunInfoRcd>().get(runInfoToken_);
 
   // very loud!
-  //  runInfo->printAllValues();
+  //  runInfo.printAllValues();
 
   // then: check that all our feds are in:
-  feds_= runInfo->m_fed_in;
+  feds_= runInfo.m_fed_in;
   uint32_t nbpixfeds=0;
   uint32_t nfpixfeds=0;
   // loop over all, they come in random order, unfortunately.

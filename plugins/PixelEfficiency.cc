@@ -8,7 +8,7 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -89,7 +89,7 @@ using namespace TMath;
 // class decleration
 //
 
-class PixelEfficiency : public edm::EDAnalyzer {
+class PixelEfficiency : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelEfficiency(const edm::ParameterSet&);
   ~PixelEfficiency();
@@ -103,6 +103,8 @@ private:
   Parameters  BadModuleList_;
 
       // ----------member data ---------------------------
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+
   std::string fOutputFileName;  
   edm::InputTag TkTag_ ; 
   std::string fOutputFileName0T;
@@ -415,7 +417,7 @@ PixelEfficiency::PixelEfficiency(const edm::ParameterSet& iConfig) :
  if(DEBUG) std::cout<<"Starting constructor"<<std::endl;
  listOfCuts_ = iConfig.getUntrackedParameter<edm::ParameterSet>("ListOfCuts");
  BadModuleList_ = iConfig.getUntrackedParameter<Parameters>("BadModuleList");
-
+ trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 
 
@@ -511,8 +513,9 @@ PixelEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(DEBUG) std::cout<<"pre iSetup"<<std::endl;
  
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+  edm::ESHandle<TrackerGeometry> geom = iSetup.getHandle(trackerGeomToken_);
+  //edm::ESHandle<TrackerGeometry> geom;
+  //iSetup.get<TrackerDigiGeometryRecord>().get( geom );
   const TrackerGeometry& theTracker( *geom );
 
    //handle of the tracks 
