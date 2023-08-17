@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -48,7 +48,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-class MuonTOFFilter_trackQuality : public edm::EDFilter {
+class MuonTOFFilter_trackQuality : public edm::stream::EDFilter<> {
    public:
       explicit MuonTOFFilter_trackQuality(const edm::ParameterSet&);
       ~MuonTOFFilter_trackQuality();
