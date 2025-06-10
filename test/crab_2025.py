@@ -6,7 +6,7 @@ config = Configuration()
 
 config.section_('General')
 config.General.transferOutputs = True
-config.General.requestName = '2025_PixelTree_Run393071_v2'
+config.General.requestName = '2025_PixelTree_Run393071_v3'
 
 config.section_('JobType')
 config.JobType.allowUndistributedCMSSW = True
@@ -25,7 +25,10 @@ config.Data.runRange = '393071'
 config.Data.outLFNDirBase = '/store/group/dpg_tracker_pixel/comm_pixel/PixelTree/2025/'
 #config.Data.splitting = 'Automatic'
 config.Data.splitting = 'LumiBased'
-config.Data.unitsPerJob = 5
+
+#One LS was about 6GB of output files
+config.Data.unitsPerJob = 1
+config.Data.totalUnits = 100
 #config.Data.publication = True
 
 config.section_('Site')
